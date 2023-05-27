@@ -43,7 +43,7 @@ while True:
         selection = input("Enter the product ID of your choice: ")
 
         if selection == 10 or 20 or 30 :
-            print ("caca")
+            print ("How many ?")
 #Boucle Jean
 
 
