@@ -1,5 +1,6 @@
 import sqlite3
 
+# connect to database
 conn = sqlite3.connect('Supershop.db')
 
 conn.execute('''CREATE TABLE IF NOT EXISTS product
@@ -9,6 +10,8 @@ conn.execute('''CREATE TABLE IF NOT EXISTS product
              price FLOAT)''')
 
 conn.execute("DELETE FROM product")
+
+# product data
 
 product_data = [(10, "Jean", 50, 89.99),
                 (20, "Shirt", 67, 59.99),
@@ -26,10 +29,14 @@ options = [
     "If you want to quit, enter 0."
 ]
 
+# user selection
+
 while True:
     print("\n".join(options))
 
     selection = input("Enter your selection: ")
+
+# Display a list of products and prices to the screen with instructions for customers to order products
 
     if selection == "1":
         print("productID  " + "productName  " + "quantity  " + "price")
@@ -49,6 +56,7 @@ while True:
             cursor.execute("SELECT * FROM product WHERE productID = ?", (product_id,))
             product = cursor.fetchone()
 
+            # Calculate total price, display total price, and ask customer to confirm order
             if product:
                 quantity = input("Enter the quantity for product ID {}: ".format(product_id))
                 order[product] = int(quantity)
