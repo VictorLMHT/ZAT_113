@@ -1,6 +1,7 @@
 import sqlite3
 
 # connect to database
+
 conn = sqlite3.connect('Supershop.db')
 
 conn.execute('''CREATE TABLE IF NOT EXISTS product
@@ -41,7 +42,11 @@ while True:
     if selection == "1":
         print("productID  " + "productName  " + "quantity  " + "price")
 
-        for row in cursor:
+        # Retrieve the updated product list from the database
+        cursor.execute("SELECT * FROM product")
+        updated_product_data = cursor.fetchall()
+
+        for row in updated_product_data:
             print(str(row[0]) + ",\t   " + str(row[1]) + ",\t " + str(row[2]) + ",\t  " + str(row[3]))
 
         order = {}  # Dictionary to store the selected products and quantities
@@ -57,9 +62,13 @@ while True:
             product = cursor.fetchone()
 
             # Calculate total price, display total price, and ask customer to confirm order
+
             if product:
                 quantity = input("Enter the quantity for product ID {}: ".format(product_id))
-                order[product] = int(quantity)
+                if int(quantity) > product[2]:
+                    print("Cannot order more than the available stock.")
+                else:
+                    order[product] = int(quantity)
             else:
                 print("Invalid product ID entered. Try again.")
 
@@ -72,8 +81,19 @@ while True:
             subtotal = product_price * quantity
             total_price += subtotal
             print("Product: {}, Quantity: {}, Subtotal: ${:.2f}".format(product_name, quantity, subtotal))
+            # Update the database with the new quantity after the order
+            new_quantity = product[2] - quantity
+            conn.execute("UPDATE product SET quantity = ? WHERE productID = ?", (new_quantity, product[0]))
+            conn.commit()
 
         print("Total Price: ${:.2f}".format(total_price))
+
+        # Update the product_data list with the new quantity after the order
+        for product in order:
+            for i, p in enumerate(updated_product_data):
+                if p[0] == product[0]:
+                    updated_product_data[i] = (p[0], p[1], p[2] - order[product], p[3])
+                    break
 
         confirm = input("Do you want to confirm the order? (yes/no): ")
 
